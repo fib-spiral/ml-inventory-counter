@@ -1,1 +1,16 @@
 .venv
+__pycache__
+
+*.csv
+*.jpg
+*.jpeg
+
+# DVC tracks data, Git tracks .dvc files and .dvcignore
+/raw_images
+/data
+
+# MLFlow
+/mlruns
+
+# OS Files
+.DS_Store
