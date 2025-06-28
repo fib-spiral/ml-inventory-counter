@@ -7,10 +7,14 @@ __pycache__
 
 # DVC tracks data, Git tracks .dvc files and .dvcignore
 /raw_images
-/data
+/raw
 
-# MLFlow
+# CVAT exports (temp staging)
+/cvat_exports
+
+# MLFlow (generated locally)
 /mlruns
 
 # OS Files
 .DS_Store
+/data
