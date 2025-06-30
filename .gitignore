@@ -15,6 +15,10 @@ __pycache__
 # MLFlow (generated locally)
 /mlruns
 
+# Ultralytics (YOLOv8) training outputs
+runs/
+*.pt
+
 # OS Files
 .DS_Store
 /data
