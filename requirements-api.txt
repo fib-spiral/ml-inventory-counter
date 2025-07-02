@@ -1,0 +1,5 @@
+fastapi
+uvicorn[standard]
+ultralytics # This will pull in torch, numpy, Pillow etc.
+python-multipart
+pillow # If you need it explicitly for Image.open beyond ultralytics's deps

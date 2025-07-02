@@ -33,25 +33,35 @@ def train_yolov8_model():
     # 1. Get DVC data hash (optional, but good for linking)
     data_dvc_hash = "N/A" # Default if DVC lookup fails
     try:
-        # Assuming DATA_YAML_PATH points to data/data.yaml
-        # We need the hash of the 'data' directory (data.dvc file)
-        # dvc diff --json --unchanged <path> is the robust way to get current hash for tracked path
-        result = subprocess.run(['dvc', 'diff', '--json', '--unchanged', 'data/'], capture_output=True, text=True, check=True)
-        dvc_diff_output = json.loads(result.stdout)
+ # Use dvc status --json to get information about tracked files
+        # This is more robust than dvc diff for simply getting the current hash.
+        result = subprocess.run(['dvc', 'status', '--json', 'data/'], capture_output=True, text=True, check=True)
+        dvc_status_output = json.loads(result.stdout)
+
+                # dvc status --json returns a list of dictionaries for each tracked item.
+        # We need to find the one corresponding to 'data/'.
+        # The 'hash' field within the 'path' entry is what we're looking for.
         
-        # Parse the JSON output to find the hash for the 'data' directory
-        # This part can be tricky depending on DVC version and output format.
-        # A common format for 'dvc diff --json --unchanged' might be a list of dicts.
-        data_entry = next((item for item in dvc_diff_output if item.get('path') == 'data'), None)
-        if data_entry and 'hash' in data_entry:
-            data_dvc_hash = data_entry['hash']
-        elif isinstance(dvc_diff_output, dict) and 'hash' in dvc_diff_output.get('data', {}): # For older or different dvc diff outputs
-            data_dvc_hash = dvc_diff_output['data']['hash']
+        # Example structure of dvc_status_output:
+        # [
+        #   {
+        #     "path": "data",
+        #     "hash": "dvc_file_hash_here",
+        #     "status": "up to date",
+        #     "is_dir": True,
+        #     "name": "data.dvc"
+        #   }
+        # ]
+        
+        for item in dvc_status_output:
+            if item.get('path') == 'data' and 'hash' in item:
+                data_dvc_hash = item['hash']
+                break
         
         if data_dvc_hash != "N/A":
             print(f"Using DVC data hash: {data_dvc_hash}")
         else:
-            print("Warning: Could not determine DVC data hash for 'data/'. Ensure 'data/' is DVC-tracked.")
+            print("Warning: Could not determine DVC data hash for 'data/'. Ensure 'data/' is DVC-tracked and committed.")
 
     except Exception as e:
         print(f"Error getting DVC data hash: {e}. Is 'data/' DVC-tracked and DVC CLI accessible?")
