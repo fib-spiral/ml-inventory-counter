@@ -1,0 +1,4 @@
+.venv
+.dvc
+.dvcignore
+.gitignore

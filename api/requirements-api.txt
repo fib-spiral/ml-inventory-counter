@@ -1,0 +1,18 @@
+# Core application framework
+fastapi
+uvicorn[standard]
+gunicorn
+
+# Model inference
+# DO NOT include '+cpu' here
+torch==2.7.1 # Pin the exact version without the suffix
+torchvision==0.22.1 # Pin the exact version
+opencv-python-headless==4.11.0.86 # Pin to the same version as standard opencv-python
+# Remove original opencv-python if it's explicitly listed.
+# Ensure 'ultralytics' comes AFTER 'opencv-python-headless'
+ultralytics
+python-multipart
+
+# Remove pillow if ultralytics already covers its usage for Image.open and your needs.
+# Otherwise, keep it.
+# pillow
