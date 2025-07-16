@@ -11,10 +11,10 @@ TODO: Add into a public S3 bucket a simple trained model
 
 With the pytorch trained info (*.pt) placed into a `/models` directory within the `api` directory. In essence (/api/models/*.pt). To build the model to be used and utilized by a FastAPI server you can run 
 
-```
+```bash
 docker build -t {image_name_here}:{image_tag_here} .
 docker run --name {container_name_here} -p 8000:8000 {image_name_from_above_line}:{image_tage_from_above_line}
-```bash
+```
 
 And then within your browser open a tab with the URL: `localhost:8000` to see your container
 
