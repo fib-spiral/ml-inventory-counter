@@ -1,19 +1,11 @@
-version: '3.8' # Use a recent Docker Compose file format version
-
 services:
   # FastAPI API service for model inference
   vegetable-counter-api:
     build:
-      context: . # Build context is the current directory (ml-grocery-sales)
+      context: ./api # Build context is the current directory (ml-grocery-sales)
       dockerfile: Dockerfile # Refers to the Dockerfile in the project root
     ports:
       - "8000:8000" # Map host port 8000 to container port 8000
-    volumes:
-      # Mount the models directory into the container
-      # This ensures the model is accessible.
-      # If your Dockerfile COPIES the model, you might not strictly need this,
-      # but it's good for ensuring the container gets the right model if it changes.
-      - ./models:/app/models
     # Command to run (already in Dockerfile, but can override here if needed)
     # command: uvicorn src.api:app --host 0.0.0.0 --port 8000
     restart: always # Ensure it restarts if it crashes
@@ -21,8 +13,8 @@ services:
   # Streamlit Demo Frontend service
   demo-frontend:
     build:
-      context: .
-      dockerfile: Dockerfile.frontend # We'll create a separate Dockerfile for Streamlit
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "8501:8501" # Default Streamlit port
     # 'depends_on' ensures the API container starts before the frontend tries to connect

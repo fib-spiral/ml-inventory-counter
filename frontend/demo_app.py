@@ -31,12 +31,12 @@ if uploaded_file is not None:
     try:
         response = requests.post(API_URL, files=files)
         response.raise_for_status() # Raise an exception for HTTP errors (4xx or 5xx)
-        prediction = response.json()
+        detections = response.json()
 
         st.subheader("Results:")
         
-        # Check if detections were successful
-        if prediction and prediction.get("detections"):
+        # Check if predictions were successful
+        if detections and detections.get("predictions"):
             # Create a drawable image copy to draw on
             draw_image = original_image.copy()
             draw = ImageDraw.Draw(draw_image)
@@ -47,11 +47,11 @@ if uploaded_file is not None:
             except IOError:
                 font = ImageFont.load_default() # Fallback to default font if not found
 
-            # Loop through detections and draw bounding boxes
+            # Loop through predictions and draw bounding boxes
             detected_counts = defaultdict(int)
-            for det in prediction["detections"]:
-                box_coords = det["box"] # x1, y1, x2, y2
-                class_name = det["class"]
+            for det in detections["predictions"]:
+                box_coords = det["bounding_box"] # x1, y1, x2, y2
+                class_name = det["class_name"]
                 confidence = det["confidence"]
                 
                 # Draw rectangle
@@ -82,9 +82,9 @@ if uploaded_file is not None:
                 st.write("No items detected.")
 
         else:
-            st.write("No detections found in the image.")
-            # If the API returns valid JSON but no detections array or it's empty
-            st.json(prediction) # Still show raw JSON for debugging
+            st.write("No predictions found in the image.")
+            # If the API returns valid JSON but no predictions array or it's empty
+            st.json(detections) # Still show raw JSON for debugging
 
 
     except requests.exceptions.ConnectionError:
@@ -94,4 +94,4 @@ if uploaded_file is not None:
 
     st.write("---")
     st.write("Raw API Response (for debugging):")
-    st.json(prediction) # Always show raw JSON for debugging purposes
+    st.json(detections) # Always show raw JSON for debugging purposes
