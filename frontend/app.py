@@ -254,10 +254,10 @@ if st.session_state.predictions:
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("Original Image")
-        st.image(st.session_state.original_image, use_column_width=True)
+        st.image(st.session_state.original_image, use_container_width=True)
     with col2:
         st.subheader("Detected Items")
-        st.image(annotated_image, use_column_width=True)
+        st.image(annotated_image, use_container_width=True)
         
     # Enhanced counts display
     st.subheader("🔢 Item Counts")
