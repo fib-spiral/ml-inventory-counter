@@ -1,5 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
+from contextlib import asynccontextmanager
 from ultralytics import YOLO
 import cv2
 import numpy as np
@@ -14,9 +15,20 @@ import os
 # For now, let's assume a custom env var for clarity.
 stage = os.environ.get('STAGE', "")
 
-# Initialize FastAPI with the root_path set to your stage
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Define startup and shutdown logic. This is the new, recommended way.
+    """
+    # --- Code to run on startup ---
+    print("--- Lifespan startup event triggered ---")
+    load_model()
+    yield
+    # --- Code to run on shutdown (optional) ---
+    print("--- Lifespan shutdown event triggered ---")
 
-app = FastAPI(title="Vegetable Detection API", version="1.0.0", root_path=f"{stage}")
+# Initialize FastAPI with the root_path set to your stage
+app = FastAPI(title="Vegetable Detection API", version="1.0.0", root_path=f"{stage}", lifespan=lifespan)
 
 # Class names for the model
 CLASS_NAMES = ['carrot', 'bean', 'radish']
@@ -25,15 +37,13 @@ CLASS_NAMES = ['carrot', 'bean', 'radish']
 model = None
 
 def load_model():
-    """Load the YOLOv8 model"""
+    """Load the YOLOv8 model and assign it to the global variable."""
     global model
     model_path = "models/vegetable_counter_yolov8n_v1.pt"
-    
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"Model file not found at {model_path}")
-    
     model = YOLO(model_path)
-    return model
+    print("--- Model loaded successfully ---")
 
 def validate_image(file: UploadFile) -> bool:
     """Validate if the uploaded file is an image"""
@@ -98,13 +108,6 @@ def format_predictions(results) -> List[Dict[str, Any]]:
     
     return detections
 
-@app.on_event("startup")
-async def startup_event():
-    """Load model on startup"""
-    try:
-        load_model()
-    except Exception as e:
-        raise RuntimeError(f"Failed to load model: {str(e)}")
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):

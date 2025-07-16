@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Create the Lambda handler
-handler = Mangum(app, lifespan="off")
+handler = Mangum(app, lifespan="on")
 
 # Optional: Add Lambda-specific initialization here
 def lambda_handler(event, context):
