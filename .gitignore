@@ -24,3 +24,8 @@ runs/
 # OS Files
 .DS_Store
 /data
+
+# AWS Lambda Testing
+.aws-sam
+template.yaml
+test-event.json
