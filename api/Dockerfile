@@ -9,8 +9,6 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     build-essential \
     pkg-config \
-    # Other build-time deps you might need that aren't for runtime:
-    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements.txt for pip install
@@ -35,22 +33,28 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     libgl1 \
-    libsm6 \
-    libxext6 \
-    libxrender1 \
     libglib2.0-0 \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # Copy the installed Python packages from the 'builder' stage.
 COPY --from=builder /usr/local /usr/local
 
 # Copy your application code and the model
-COPY api.py .
-RUN mkdir -p models 
+COPY prediction_api.py .
+COPY lambda_handler.py .
 COPY models/vegetable_counter_yolov8n_v1.pt ./models/vegetable_counter_yolov8n_v1.pt
+RUN mkdir -p models 
 
 # Expose the port
 EXPOSE 8000
 
-# Command to run the FastAPI application
-CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
+# Build argument to determine runtime mode (default to fastapi for local builds)
+ARG RUNTIME_MODE=fastapi
+ENV RUNTIME_MODE=${RUNTIME_MODE}
+
+# Conditional CMD based on build argument
+# - If RUNTIME_MODE is "lambda", it runs the RIE with your handler.
+# - Otherwise (e.g., "fastapi"), it runs Uvicorn directly.
+# More complex but "proper" signal handling
+CMD ["sh", "-c", "if [ \"$RUNTIME_MODE\" = \"lambda\" ]; then python -m awslambdaric lambda_handler.handler; else uvicorn prediction_api:app --host 0.0.0.0 --port 8000; fi"]

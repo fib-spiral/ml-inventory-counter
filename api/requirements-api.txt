@@ -1,7 +1,6 @@
 # Core application framework
 fastapi
 uvicorn[standard]
-gunicorn
 
 # Model inference
 # DO NOT include '+cpu' here
@@ -13,6 +12,6 @@ opencv-python-headless==4.11.0.86 # Pin to the same version as standard opencv-p
 ultralytics
 python-multipart
 
-# Remove pillow if ultralytics already covers its usage for Image.open and your needs.
-# Otherwise, keep it.
-# pillow
+# Lambda reqs
+mangum
+awslambdaric
